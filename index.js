@@ -2,9 +2,8 @@ const express = require('express')  //express모듈 가져오기
 const app = express()               //새로운 express 앱 생성
 const port = 5000                   //포트번호
 
-// mongodb+srv://rmawjdals:<password>@cluster0.bryx4.mongodb.net/<dbname>?retryWrites=true&w=majority
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://rmawjdals:1234@cluster0.bryx4.mongodb.net/<dbname>?retryWrites=true&w=majority',{
+mongoose.connect('mongodb...',{
     useNewUrlParser : true, useUnifiedTopology : true, useCreateIndex : true, useFindAndModify : false
 }).then(()=>console.log("mongoDB is connected"))
 .catch((err)=> console.log("failed", err))
