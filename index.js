@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({extended : true}));
 app.use(bodyParser.json());
 
 const mongoose = require('mongoose');
-mongoose.connect(config.mongoURI ,{  //config>key에서 export한 url
+mongoose.connect(config.mongoURI,{
     useNewUrlParser : true, useUnifiedTopology : true, useCreateIndex : true, useFindAndModify : false
 }).then(()=>console.log("mongoDB is connected"))
 .catch((err)=> console.log("failed", err))
