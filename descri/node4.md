@@ -3,74 +3,132 @@
 
 <img src="./4.png"/>
 
-## 1) Bcrypt?
-- 현재 데이터베이스상 비밀번호는 안전하지 않은 상태로 저장되어 있다.
-- 그래서, Bcrypt를 이용하여, 비밀번호를 암호화한 후 데이터베이스에 저장하려고 한다.
+# 로그인 기능을 만들어보자!
 
+## 1) index.js
+### (1) login route 만들기
+- index.js에서 login route를 생성한다.
+- `User.findOne()`을 사용해 database에서 요청한 e-mail(id)를 찾는다.
 ```js
-npm install bcrypt --save
-```
+const cookieParser = require('cookie-parser'); 
+//쿠키를 사용하겠다!
+app.use(cookieParser());
 
-## 2) Bcrypt로 비밀번호 암호화하기 
-### (1) model>User.js
-
-- 비밀번호 암호화를 위해 bcrypt, salt가져오기
-- salt를 이용하여 비밀번호를 암호화해야하고, saltRounds는 salt가 몇글자인지 나타낸다.
-- saltRounds = 10이라는 말은, 10자리 솔트를 만들어서 -> 이 솔트로 비밀번호를 암호화한다는 말이다.
-
-```js
 ...
 
-const bcrypt = require('bcrypt');
-const saltRounds = 10; 
-```
-
-- user모델의 유저 정보를 저장하기 전에(ndex.js에서 user.save()하기 전에) 실행하는 함수를 작성한다.
-- function을 사용하여 비밀번호를 암호화한 후, index.js의 user.save()코드 부분으로 가서, save 코드를 진행한다.
- 
-```js
-userSchema.pre('save', function(next){
-    var user = this;        //this는 userSchema를 가리킴
-    
-    //model안의 password를 변경할때만 -> 비밀번호를 암호화한다.
-    //(이메일 변경시에는 비밀번호 암호화를 하지 않게 함)
-    if(user.isModified('password')){
-        bcrypt.genSalt(saltRounds, function(err, salt) {    //솔트만들기
-            if(err) return next(err);   
-            //err가 나면->next()로 감 : index의 user.save()코드로 감
-
-            // 솔트를 제대로 생성했다면(error가 나지 않았다면?)
-            //user.password : 암호화 전 비밀번호 | function(err:에러, hash:암호화된 pw)
-            bcrypt.hash(user.password, salt, function(err, hash) { 
-                if(err) return next(err);
-                user.password = hash;   //유저 비밀번호를 hash값으로 변경
-                next();                 //변경 후에는 next를 해서 index.js의 user.save()코드로 돌아감
-            });
-        });
+app.post('/api/users/login', (req, res)=>{
+  User.findOne({email:req.body.email}, (err, user)=>{
+    if(!user){         //만약 userInfo가 없다면?
+      return res.json({
+        loginSucess : false,
+        message : "제공된 이메일에 해당하는 유저가 없습니다."
+      })
     }
-    //만약 비밀번호를 바꾸는 게 아니라면?
+```
+- 데이터 베이스에서 요청한 email이 있다면 비밀번호가 같은 지 확인한다.
+- Bcrypt를 이용하여 plain password와 암호화된 (Hashed)패스워드와 같은 지 확인한다.
+```js
+   
     else{
-        next(); //원래대로 진행
-    }  
-})  
-
-...
+      //user에 유저에 대한 정보가 다 들어있음
+      //comparePassword는 User.js에서 정의한 메소드
+      user.comparePassword(req.body.password,(err, isMatch)=>{
+        if(!isMatch){  
+          return res.json({
+            loginSucess : false,
+            message : "비밀번호가 틀렸습니다."
+          })
+        }
 ```
 
-### (2) index.js의 save 지점
+- 비밀번호가 같다면 token을 생성해준다.
+- 해당 토큰을 쿠기에 저장한다. (x_auth는 아무거나 써도 됨)
 ```js
-...
+        else{
+          user.generateToken((err, user)=>{  //user에는 토큰이 저장된 상태
+            if(err) return res.status(400).send(err);
 
-// 회원가입을 위한 라우터 만들기
-app.post('/api/users/register', (req, res)=>{
-    const user = new User(req.body);
-
-    //이지점에서 먼저 models>User.js의 암호화 function이 실행되고 -> save가 다음으로 진행됨
-    user.save((err, userInfo)=>{  
-        if(err) return res.json({success : false, err}) 
-        return res.status(200).json({success : true})
-    })  
+            //토큰을 쿠키에 저장해보자.
+            res.cookie("x_auth", user.token)
+            .status(200)
+            .json({
+              loginSucess : true,
+              userId : user._id
+            }) 
+          })
+        }
+      })
+    }
+  })
 })
 
-
+...
 ```
+
+<br/>
+
+## 2) models>User.js
+
+### (1) JSONWEBTOKEN 설치하기
+- 토큰 생성을 위해, jsonwebtoken 라이브러리를 설치한다.
+```
+npm install jsonwebtoken --save
+```
+- 아래 코드를 이용하여 토큰을 생성한다.
+```js
+var jwt = require('jsonwebtoken');
+var token = jwt.sign({ foo: 'bar' }, 'shhhhh');
+```
+
+<br/>
+
+### (2) jsonwebtoken라이브러리 불러오기
+- User.js 제일 상단에 해당 라이브라리를 불러온다.
+
+```js
+...
+const jwt = require('jsonwebtoken');
+```
+
+### (3) 비밀번호 비교 메소드 만들기
+- 로그인을 위해, 비밀번호를 비교하는 comparePassword(비번, 콜백함수)메소드이다.
+- plainPassword는 화면에서 입력한 값이다.
+- this.password은 db에 있는 암호화된 비밀번호이다.
+- 현재 db에 저장된 비밀번호는 bcrypt에 의해 암호화된 상태이다.
+- 그러므로, 입력한 비밀번호를 -> 암호화하여 -> db에 저장된 암호화된 비밀번호와 비교해야한다.
+```js
+...
+userSchema.methods.comparePassword = function(plainPassword, cb){
+    //compare(입력한 비번, db에 저장된 암호화된 비번)
+    bcrypt.compare(plainPassword, this.password, function(err, isMatch){
+        if(err) return cb(err);
+        cb(null, isMatch); //만약 일치한다면->콜백(err=null, isMatch=true)
+    })
+}
+```
+
+<br/>
+
+### (4) 토큰을 생성하는 메소드 만들기
+- generateToken은 토큰을 생성하는 메소드이다.
+- json web token을 이용하여 토큰을 생성한다.
+```js
+userSchema.methods.generateToken = function(cb){
+    var user = this;
+    var token = jwt.sign(user._id.toHexString(), 'secertToken')
+    //user._id + secertToken을 합쳐서 -> token을 만드는 코드
+    //secertToken을 가지고 -> user._id를 알 수 있음
+    user.token = token
+    
+    user.save(function(err, user){
+        if(err) return cb(err);
+        cb(null, user);  
+        //error가 없다면 -> err=null, user정보를 보냄 
+        //-> 이 user정보가 index.js의 generateToken의 user매개변수로 들어감
+        
+    })
+}
+
+...
+```
+
