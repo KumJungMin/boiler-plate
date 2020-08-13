@@ -1,6 +1,8 @@
 # 1. node로 백엔드 개발하기(2)
 *이 내용은 인프런의 '따라하며 배우는 노드 리액트 기초 강의'를 학습한 자료입니다.*
 
+<img src="./2.png"/>
+
 ## 1) 회원가입 기능 만들기
 - 회원가입 기능을 만들기 전, 필요한 모듈을 설치한다.
 
@@ -73,7 +75,7 @@ npm install nodemon --save-dev
 ```
 <br/>
 
--package.json에 scipt를 추가한다.
+- package.json에 scipt를 추가한다.
 ```js
 "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
