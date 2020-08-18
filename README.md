@@ -13,3 +13,7 @@
 - <a href="https://github.com/KumJungMin/boiler-plate/blob/master/descri/node5.md"> 권한설정 하기 </a>
 
 - <a href="https://github.com/KumJungMin/boiler-plate/blob/master/descri/node6.md"> 로그아웃만들기 </a>
+
+<br/>
+
+## 2. react를 이용하여 frontend 구축하기
