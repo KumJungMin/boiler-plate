@@ -85,26 +85,7 @@ export default App;
 
 <br/>
 
-
-
-## 2) action 만들기
-### (1) action/types.js
-- 액션 타입을 따로 정의해둔다.
-```js
-export const LOGIN_USER = "login_user";
-export const REGISTER_USER = "register_user";
-export const AUTH_USER = "auth_user";
-```
-
-<br/>
-
-
-
-
-
-
-
-## 4) LoginPage.js 생성
+## 2) LoginPage.js 생성
 
 - (1) `useState` : state의 변화를 주기 위해 사용한다.
 - (2) `useDispatch` : redux를 이용하여 서버와 통신을 위해 라이브러리를 가져온다.
@@ -186,6 +167,95 @@ function LoginPage(props) {
 export default withRouter(LoginPage)
 
 ```
-<br/> 
 
+<br/>
+
+
+## 3) action 만들기
+### (1) action/types.js
+- 액션 타입을 따로 정의해둔다.
+```js
+export const LOGIN_USER = "login_user";
+export const REGISTER_USER = "register_user";
+export const AUTH_USER = "auth_user";
+```
+
+<br/>
+
+### (2) action/user_action.js
+- 액션함수 만든다.
+
+- (1) `loginUser(dataToSubmit)` : dataToSubmit에는 객체형태의 {email,pw}값이 들어옴|body
+
+- (2) `axios.post('/api/users/login', dataToSubmit)` : 액션함수 내에서 axios를 통한 서버와의 통신을 처리한다.
+
+- (3) `return{type :..., payload:...}` : 리듀서는 현재의 상태와 전달 받은 액션을 참고하여 새로운 상태를 만들어서 반환한다.
+
+```js
+import axios from 'axios';
+
+export function loginUser(dataToSubmit){                            //(1)
+    const request = axios.post('/api/users/login', dataToSubmit)    //(2)
+    .then(response => response.data);         //request는 서버에서 json으로 send했던 메시지를 저장함
+    
+    return{                                                       //(3)
+        //(액션은 type, response(payload==state)를 넣어줘야함)
+        //이 값들을 _reducer>user_reducer로 보냄
+        type : "LOGIN_USER",   //action.type
+        payload : request
+    }
+}
+
+```
+<br/>
+
+## 4) reducer 만들기
+### (1) reducer/user_reducer.js
+- 액션의 타입별로 다른 조치를 취하게 한다.
+
+- (1) `switch (action.type)`: action 폴더에 types.js안에 액션이름들을 정의되어 있다.
+```js
+import {
+    LOGIN_USER,
+    REGISTER_USER,
+    AUTH_USER
+} from '../_actions/types';
+
+export default function(state={}, action){
+    switch (action.type){                   //(1)
+        case LOGIN_USER:
+            return {...state, loginSuccess : action.payload}   
+            //loginSuccess는 login api에서 성공시 
+            //-> 클라이언트에게 보내주는(send(json))해주는 속성값 -> 성공시 true임
+            break;
+
+        default:
+            return state;
+    }
+}
+```
+
+<br/>
+
+### (2) reducer/index.js
+- (1) `combineReducers` 
+
+  : store안에 여러 개의 리듀서가 존재할 수 있다.
+  
+  : 왜 리듀서가 여러개 일 수 있을까? 유저, 구독, 글쓰기 리듀서 등 특징별로 여러 개의 리듀서를 작성해 관리하기 때문!
+  
+  : 이 여러개의 리듀서를 combine리듀서를 이용하여 -> root리듀서에서 하나로 합쳐준다.
+
+```js
+import {combineReducers} from 'redux';            //(1)
+import user from './user_reducer';
+
+
+const rootReducer = combineReducers({
+    //정의한 여러 개의 리듀서를 적음
+    user
+})
+
+export default rootReducer;
+```
 
