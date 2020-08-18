@@ -45,7 +45,7 @@ npm install axios --save
 
 <br/>
 
-#### AXIOS
+#### PROXY
 
 - 현재 프론트는 3000번 포트, 백엔드는 5000번 포트이다.
 
@@ -53,54 +53,53 @@ npm install axios --save
 
 - 그 이유는, Cors 정책, Cross-Origin Resource Sharing (CORS) 보안 때문이다.
 
-- 그래서 우리는 proxy-server 설정을 사용하여, 서로다른 포트간의 통신을 가능하게 한다.
+- 그래서 우리는 proxy-server 설정을 사용하여, 보안정책에 위배되지 않게 포트간 통신을 가능하게 한다.
 
 
 ```
-npm install axios --save
+$ npm install http-proxy-middleware --save
+$ # 또는
+$ yarn add http-proxy-middleware
+```
+
+- `src/setupProxy.js`을 만들어 아래 코드를 작성한다.
+https://www.inflearn.com/questions/28710
+```jsx
+const {createProxyMiddleware} = require('http-proxy-middleware');
+module.exports = function(app) {
+  app.use(  
+  '/api', 
+  createProxyMiddleware({
+  target: 'http://localhost:5000',
+  changeOrigin: true,
+  })
+ );
+};
 ```
 
 <br/>
 
+#### REDUX
 
+- 리덕스는 스토어안의 모든 state을 관리한다.
+- 스토어 안의 state을 변경하고 싶다면->dispatch을 이용하여 action으로 변경한다.
+-액션은 무조건 객체형태여야한다.
+- 하지만 store에서는 항상 객체 형태의 액션이 아닌 promise형태 혹은 function형태의 액션을 받을 때가 있다.
+- 그래서 이 두 가지를 처리하기 위해 redux-promise, thunk을 미들웨어로 써야 한다.
+
+- redux-thunk의 경우, dispatch에게 어떻게 function을 받는지에 대한 방법을 알려준다.
+- redux-promise는 dispatch에게 어떻게 promise형태의 액션을 받는지에 대한 방법을 알려준다.
+
+```
+$ npm i redux react-redux redux-promise redux-thunk --save 
+```
+
+<br/>
 
 ### (2) 폴더 생성하기
- 
- - 프로젝트를 진행할 폴더를 생성한다.
-```
-mkdir boiler-plate
-cd boiler-plate
 
-//--save라고 하면 package.json에 라이브러리 버전이 저장됨
-//다운받은 모든 라이브러리는 node_module에 들어가 있음
-```
- 
- ### (3)npm 패키지 만들기
- 
- - `npm init`명령어를 사용하여 `package.json`만든다.
- 
- 
- ### (4) 백엔드의 시작점 만들기
- 
- - index.js은 백엔드의 시작점으로, 루트 디렉토리에 생성한다.
- 
- ```js
-const express = require('express')   //express 불러오기
-const app = express()                //express를 사용하겠다.
-const port = 5000                    //포트넘버
-
-app.get('/', (req, res) => {        //app.get(end_point, (request, response))
-  res.send('Hello World!')
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
- ```
- 
- ### (5) package.json에 추가하기
- 
-- package.json에 `start : node index.js` 추가한다.
-```
-npm run start
-```
+- `_actions`, `_reducer` : Redux 를 위한 폴더들이다.
+- `components/views` : 이 안에는 Page들을 넣는다.
+- `components/views/Sections` : 이 안에는 해당 페이지에 관련된 css 파일이나, component 들을 넣는다.
+- `App.js` : Routing 관련 일을 처리한다.
+- `Config.js` : 환경 변수같은 것들을 정하는 곳이다.
