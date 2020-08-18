@@ -17,3 +17,5 @@
 <br/>
 
 ## 2. react를 이용하여 frontend 구축하기
+
+- <a href="https://github.com/KumJungMin/boiler-plate/blob/master/descri/fro/react1.md"> 사전설정하기 </a>
