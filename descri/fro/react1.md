@@ -81,14 +81,14 @@ module.exports = function(app) {
 
 #### REDUX
 
-- 리덕스는 스토어안의 모든 state을 관리한다.
-- 스토어 안의 state을 변경하고 싶다면->dispatch을 이용하여 action으로 변경한다.
+- 리덕스는 스토어안의 모든 `state`을 관리한다.
+- 스토어 안의 `state`을 변경하고 싶다면 -> `dispatch`을 이용하여 `action`으로 변경한다.
 -액션은 무조건 객체형태여야한다.
-- 하지만 store에서는 항상 객체 형태의 액션이 아닌 promise형태 혹은 function형태의 액션을 받을 때가 있다.
-- 그래서 이 두 가지를 처리하기 위해 redux-promise, thunk을 미들웨어로 써야 한다.
+- 하지만 `store`에서는 항상 객체 형태의 액션이 아닌 `promise`형태 혹은 `function`형태의 액션을 받을 때가 있다.
+- 그래서 이 두 가지를 처리하기 위해 `redux-promise`, `thunk`을 미들웨어로 써야 한다.
 
-- redux-thunk의 경우, dispatch에게 어떻게 function을 받는지에 대한 방법을 알려준다.
-- redux-promise는 dispatch에게 어떻게 promise형태의 액션을 받는지에 대한 방법을 알려준다.
+- `redux-thunk`의 경우, dispatch에게 어떻게 function을 받는지에 대한 방법을 알려준다.
+- `redux-promise`는 dispatch에게 어떻게 promise형태의 액션을 받는지에 대한 방법을 알려준다.
 
 ```
 $ npm i redux react-redux redux-promise redux-thunk --save 
@@ -99,7 +99,11 @@ $ npm i redux react-redux redux-promise redux-thunk --save
 ### (2) 폴더 생성하기
 
 - `_actions`, `_reducer` : Redux 를 위한 폴더들이다.
+
 - `components/views` : 이 안에는 Page들을 넣는다.
+
 - `components/views/Sections` : 이 안에는 해당 페이지에 관련된 css 파일이나, component 들을 넣는다.
+
 - `App.js` : Routing 관련 일을 처리한다.
+
 - `Config.js` : 환경 변수같은 것들을 정하는 곳이다.
