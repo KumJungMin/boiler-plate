@@ -27,3 +27,9 @@
 - <a href="https://github.com/KumJungMin/boiler-plate/blob/master/descri/fro/react4.md"> 로그아웃만들기 </a>
 
 - <a href="https://github.com/KumJungMin/boiler-plate/blob/master/descri/fro/react5.md"> 인증만들기 </a>
+
+<br/>
+
+## 3. 추가, jS 문법에 대해 알아보기
+
+- <a href="https://github.com/KumJungMin/ES6_study"> ES6문법에 대해 간단히 알아보자 </a>
